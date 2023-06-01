@@ -15,7 +15,7 @@ function createMainWindow() {
     height: 600,
     icon: `${__dirname}/assets/icons/Icon_256x256.png`,
     resizable: isDev,
-    backgroundColor: 'aquamarine',
+    backgroundColor: 'white',
   })
 
   // mainWindow.loadURL(`file://${__dirname}/app/index.html`)
@@ -30,7 +30,7 @@ function createAboutWindow() {
     height: 300,
     icon: `${__dirname}/assets/icons/Icon_256x256.png`,
     resizable: false,
-    backgroundColor: 'aquamarine',
+    backgroundColor: 'white',
   })
 
   // mainWindow.loadURL(`file://${__dirname}/app/index.html`)
@@ -62,6 +62,9 @@ const menu = [
             {
               label: 'About',
               click: createAboutWindow,
+            },
+            {
+              role: 'quit',
             },
           ],
         },
