@@ -1,4 +1,10 @@
-const { app, BrowserWindow, Menu, globalShortcut } = require('electron')
+const {
+  app,
+  BrowserWindow,
+  Menu,
+  globalShortcut,
+  ipcMain,
+} = require('electron')
 
 // set env
 process.env.NODE_ENV = 'development'
@@ -16,11 +22,15 @@ function createMainWindow() {
     icon: `${__dirname}/assets/icons/Icon_256x256.png`,
     resizable: isDev,
     backgroundColor: 'white',
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+    },
   })
 
   // mainWindow.loadURL(`file://${__dirname}/app/index.html`)
   mainWindow.loadFile('./app/index.html')
-  // if (isDev) mainWindow.webContents.openDevTools()
+  if (isDev) mainWindow.webContents.openDevTools()
 }
 
 function createAboutWindow() {
@@ -100,6 +110,10 @@ const menu = [
       ]
     : []),
 ]
+
+ipcMain.on('image:minimize', (e, options) => {
+  console.log({ options })
+})
 
 app.on('window-all-closed', () => {
   if (!isMac) app.quit()
