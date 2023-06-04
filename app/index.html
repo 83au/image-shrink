@@ -66,13 +66,20 @@
       )
 
       // Onsubmit
-      form.addEventListener('submit', (e) => {
+      form.addEventListener('submit', e => {
         e.preventDefault()
 
-        const imgPath = img.files[0].path
+        const { name: imgName, path: imgPath } = img.files[0]
         const quality = slider.value
 
-        ipcRenderer.send('image:minimize', { imgPath, quality })
+        ipcRenderer.send('image:minimize', { imgName, imgPath, quality })
+      })
+
+      // on done
+      ipcRenderer.on('image:done', () => {
+        M.toast({
+          html: `Image resized to ${slider.value}% quality`,
+        })
       })
     </script>
   </body>

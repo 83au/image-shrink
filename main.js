@@ -8,9 +8,10 @@ const {
   ipcMain,
   shell,
 } = require('electron')
+const log = require('electron-log')
 
 // set env
-process.env.NODE_ENV = 'development'
+process.env.NODE_ENV = 'production'
 
 const isDev = process.env.NODE_ENV !== 'production'
 const isMac = process.platform === 'darwin'
@@ -115,12 +116,11 @@ const menu = [
 ]
 
 ipcMain.on('image:minimize', (e, options) => {
-  console.log({ options })
   options.dest = path.join(os.homedir(), 'imageshrink')
-  shrinkImage(options)
+  if (options.imgName) shrinkImage(options)
 })
 
-async function shrinkImage({ imgPath, quality, dest }) {
+async function shrinkImage({ imgName, imgPath, quality, dest }) {
   try {
     const imageminObj = await import('imagemin')
     const imagemin = imageminObj.default
@@ -133,23 +133,27 @@ async function shrinkImage({ imgPath, quality, dest }) {
     const slashObj = await import('slash')
     const slash = slashObj.default
 
-    const pngQuality = quality / 100
+    const adjustedQuality = quality / 100
     const files = await imagemin([slash(imgPath)], {
       destination: dest,
       plugins: [
         imageminMozjpeg({ quality }),
         imageminPngquant({
-          quality: [pngQuality, pngQuality],
+          quality: [adjustedQuality, adjustedQuality],
         }),
-        imageminWebp({ quality: pngQuality }),
+        ...(imgName.endsWith('.webp')
+          ? [imageminWebp({ quality: adjustedQuality })]
+          : []),
       ],
     })
 
-    console.log({ files })
+    // log.info(files)
 
     shell.openPath(dest)
+
+    mainWindow.webContents.send('image:done')
   } catch (err) {
-    console.log({ err })
+    log.error(err)
   }
 }
 
